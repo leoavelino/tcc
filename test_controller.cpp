@@ -120,7 +120,7 @@ private:
 
     /**
      * Rotina chamada na inicializacao da thread.
-     * Esta Ã© usada para chamar a funcao task_main()
+     * Usada para chamar a funcao task_main()
      */
     static void	task_main_trampoline(int argc, char *argv[]);
 
