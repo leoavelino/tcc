@@ -3,10 +3,10 @@
  *
  * Test Controller
  *
- * attitude_control -> transforma Ã¢ngulos em velocidades setpoints utilizando-se de um controlador P
+ * attitude_control -> transforma angulos em velocidades setpoints utilizando-se de um controlador P
  * rates_control -> transforma velocidades em torques utilizando-se de um controlador PD
  *
- * Controlador para teste criado com base no mc_att_control, porÃ©m sem utilizar quatÃ©rnios.
+ * Controlador para teste criado com base no mc_att_control, porem sem utilizar quaternios.
  *
  *
  * Created by Leonardo Avelino
@@ -37,7 +37,7 @@
 
 /** MACROS    ******************/
 
-/*  Ganhos Proporcionais de Ã¢ngulo roll, pitch e yaw*/
+/*  Ganhos Proporcionais de angulo roll, pitch e yaw*/
 #define ROLL_P                 6.5f
 #define PITCH_P                6.5f
 #define YAW_P                  3.0f
@@ -68,7 +68,7 @@ struct v_data
 typedef v_data v_data;
 
 
-/* DefiniÃ§Ã£o da classe Test_Controller */
+/* Definicao da classe Test_Controller */
 /* Classe que encapsula o controlador do tipo Test_Controller */
 class Test_Controller{
 public:
@@ -79,12 +79,12 @@ public:
     Test_Controller();
 
     /**
-     * Destrutor, tambÃ©m mata a funÃ§Ã£o main()
+     * Destrutor, tambem mata a funcao main()
      */
     ~Test_Controller();
 
     /**
-     * FunÃ§Ã£o que inicia o Test_Controller
+     * Funcao que inicia o Test_Controller
      * retorna OK caso tenha sido executada com sucesso
      */
     int start();
@@ -111,41 +111,41 @@ private:
     struct v_data _rates;                                           // current rates
     struct v_data _rates_sp;                                        // current rates setpoint
     struct v_data _att_control;                                     // torques
-    struct v_data _angles_p;                                        // ganhos P para os Ã¢ngulos
+    struct v_data _angles_p;                                        // ganhos P para os angulos
     struct v_data _rates_p, _rates_d;                               // ganhos P e D para as velocidades
     struct v_data _rates_prev_error;                                // erro anterior das velocidades, usado para calcular o termo derivativo
 
     perf_counter_t	_loop_perf;                                 /** loop performance counter */
 
     /**
-     * Rotina chamada na inicializaÃ§Ã£o da thread.
-     * Esta Ã© usada para chamar a funÃ§Ã£o task_main()
+     * Rotina chamada na inicializacao da thread.
+     * Esta Ã© usada para chamar a funcao task_main()
      */
     static void	task_main_trampoline(int argc, char *argv[]);
 
     /**
-     * FunÃ§Ã£o que converte quaternios para Euler
+     * Funcao que converte quaternios para Euler
      */
     void att_quaternion_to_euler(const float *q, struct v_data *angles);
 
     /**
-     *  Checa se o veÃ­culo estÃ¡ armado
+     *  Checa se o veeiculo esta armado
      */
     void arming_status_poll();
 
     /**
-     * AquisiÃ§Ã£o de dados: ler dados de setpoint do veÃ­culo
+     * Aquisicao de dados: ler dados de setpoint do veiculo
      */
     void vehicle_attitude_setpoint_poll();
 
     /**
-      * AquisiÃ§Ã£o de dados: ler dados de atitude atual/ velocidade atual do veÃ­culo (em roll, pitch, yaw)
+      * Aquisicao de dados: ler dados de atitude atual/ velocidade atual do veiculo (em roll, pitch, yaw)
       */
     void vehicle_attitude_poll();
 
     /**
-      * AquisiÃ§Ã£o de dados: ler o estado de controle do veÃ­culo, vindos do commander. Usada neste cÃ³digo para ler flags de controle.
-      * Os modos de vÃ´o setam diferentes flags. Por ex, o modo automÃ¡tico e o modo manual setam as flags de atitude e rates,
+      * Aquisicao de dados: ler o estado de controle do veiculo, vindos do commander. Usada neste codigo para ler flags de controle.
+      * Os modos de voo setam diferentes flags. Por ex, o modo automatico e o modo manual setam as flags de atitude e rates,
       * e estamos interessados nelas para fazer o controle.
       */
     void vehicle_control_mode_poll();
@@ -165,14 +165,14 @@ private:
     void task_main();
 };
 
-/* Escopo do cÃ³digo    */
+/* Escopo do codigo    */
 namespace test_controller
 {
     Test_Controller *g_control;
 }
 
 /*  Construtor da classe */
-/*  InicializaÃ§Ã£o de variÃ¡veis e estrutras de dados */
+/*  Inicializacao de variaveis e estrutras de dados */
 Test_Controller::Test_Controller() :
 
    _task_should_exit(false),
@@ -199,21 +199,19 @@ Test_Controller::Test_Controller() :
 {}
 
 /*   Destrutor da classe   */
-/*  Desaloca dados e encerra a funÃ§Ã£o principal */
+/*  Desaloca dados e encerra a funcao principal */
 Test_Controller::~Test_Controller()
 {
     if (_control_task != -1) {
-        /* task wakes up every 100ms or so at the longest */
+
         _task_should_exit = true;
 
-        /* wait for a second for the task to quit at our request */
         unsigned i = 0;
 
         do {
             /* wait 20ms */
             usleep(20000);
 
-            /* if we have given up, kill it */
             if (++i > 50) {
                 px4_task_delete(_control_task);
                 break;
@@ -247,7 +245,7 @@ void Test_Controller::vehicle_attitude_setpoint_poll()
         orb_copy(ORB_ID(vehicle_attitude_setpoint), _v_attitude_sp_sub, &_v_attitude_sp);
     }
 
-    /*Copiar os dados de atitude setpoint para a estrutura que serÃ¡ utilizada pelo controlador*/
+    /*Copiar os dados de atitude setpoint para a estrutura que sera utilizada pelo controlador*/
     _angles_sp.roll = _v_attitude_sp.roll_body;
     _angles_sp.pitch = _v_attitude_sp.pitch_body;
     _angles_sp.yaw = _v_attitude_sp.yaw_body;
@@ -266,7 +264,7 @@ void Test_Controller::vehicle_attitude_poll()
     /*Converter os dados adquiridos para Euler*/
     att_quaternion_to_euler(_attitude.q, &_angles);
 
-    /*Copiar os dados de velocidade para a estrutura que serÃ¡ utilizado pelo controlador*/
+    /*Copiar os dados de velocidade para a estrutura que sera utilizado pelo controlador*/
     _rates.roll = _attitude.rollspeed;
     _rates.pitch = _attitude.pitchspeed;
     _rates.yaw = _attitude.yawspeed;
@@ -285,7 +283,7 @@ void Test_Controller::vehicle_control_mode_poll()
     }
 }
 
-/*Simplesmente recebe um quatÃ©rnio e uma estrutura do tipo v_data por referÃªncia, converte o quatÃ©rnio para euler */
+/*Simplesmente recebe um quaternio e uma estrutura do tipo v_data por referÃªncia, converte o quaternio para euler */
 /*  e grava na estrutura                            */
 void Test_Controller::att_quaternion_to_euler(const float *q, struct v_data *angles)
 {
@@ -295,22 +293,22 @@ void Test_Controller::att_quaternion_to_euler(const float *q, struct v_data *ang
     angles->yaw = att_euler(2);
 }
 
-/*Controlador de Ã‚ngulos*/
+/*Controlador de angulos*/
 /*Entrada: angulos atuais, angulos setpoints   */
 /*Saida: velocidades setpoint   */
 
 void Test_Controller::control_attitude()
 {
-    /* Checa se existe um novo setpoint de Ã¢ngulo*/
+    /* Checa se existe um novo setpoint de angulo*/
     vehicle_attitude_setpoint_poll();
-    /* checa se o veÃ­culo mudou de posiÃ§Ã£o*/
+    /* checa se o veiculo mudou de posicao*/
     vehicle_attitude_poll();
 
     /* calcular error */
     struct v_data angles_error;
     angles_error.roll = _angles_sp.roll - _angles.roll;
     angles_error.pitch = _angles_sp.pitch - _angles.pitch;
-    /* Verifica se Ã© o menor caminho de yaw com o uso da funÃ§Ã£o _wrap_pi*/
+    /* Verifica se eh o menor caminho de yaw com o uso da funcao _wrap_pi*/
     angles_error.yaw = _wrap_pi(_angles_sp.yaw - _angles.yaw);
 
     /** Proportional control */
@@ -330,7 +328,7 @@ void Test_Controller::control_attitude()
 
 void Test_Controller::control_rates(float dt)
 {
-    /* checa se o veÃ­culo mudou de posiÃ§Ã£o*/
+    /* checa se o veiculo mudou de posiÃ§Ã£o*/
     vehicle_attitude_poll();
 
     /* calcular error */
@@ -350,7 +348,7 @@ void Test_Controller::control_rates(float dt)
     _rates_d.pitch = ((rates_error.pitch - _rates_prev_error.pitch) / dt) * PITCH_RATES_D;
     _rates_d.yaw = ((rates_error.yaw - _rates_prev_error.yaw) / dt) * YAW_RATES_D;
 
-    /* Salva o erro atual para prÃ³xima iteraÃ§Ã£o */
+    /* Salva o erro atual para proxima iteracao */
     _rates_prev_error.roll = rates_error.roll;
     _rates_prev_error.pitch = rates_error.pitch;
     _rates_prev_error.yaw = rates_error.yaw;
@@ -362,16 +360,16 @@ void Test_Controller::control_rates(float dt)
 
 }
 
-/* FunÃ§Ã£o que cria um thread para este mÃ³dulo*/
+/* Funcao que cria uma thread para este modulo*/
 int Test_Controller::start()
 {
     ASSERT(_control_task == -1);
     /* start the task */
     _control_task = px4_task_spawn_cmd("test_controller",                               //nome da thread
-                                       SCHED_DEFAULT,                                   //escalonador que serÃ¡ utilizado
+                                       SCHED_DEFAULT,                                   //escalonador que sera utilizado
                                        SCHED_PRIORITY_MAX,                              //prioridade da thread
                                        2048,                                            //stack utilizada pela thread
-                                       (px4_main_t)&task_main_trampoline,               //rotina que serÃ¡ chamada quando a thread for criada
+                                       (px4_main_t)&task_main_trampoline,               //rotina que sera chamada quando a thread for criada
                                        nullptr);
     if (_control_task < 0){
         warn("Task start failed");
@@ -383,33 +381,33 @@ int Test_Controller::start()
 
 void Test_Controller::task_main_trampoline(int argc, char *argv[])
 {
-   /* O que serÃ¡ feito quando a thread for criada estarÃ¡ nessa rotina*/
+   /* O que sera feito quando a thread for criada estarÃ¡ nessa rotina*/
 
-   /*Neste caso, passa-se o controle para a funÃ§Ã£o task_main() */
+   /*Neste caso, passa-se o controle para a funcao task_main() */
    test_controller::g_control->task_main();
 }
 
 void Test_Controller::task_main()
 {
-    /* Inscrever nos tÃ³picos */
+    /* Inscrever nos topicos */
     _v_attitude_sp_sub = orb_subscribe(ORB_ID(vehicle_attitude_setpoint));
     _v_attitude_sub = orb_subscribe(ORB_ID(vehicle_attitude));
     _v_control_mode_sub = orb_subscribe(ORB_ID(vehicle_control_mode));
     _armed_sub = orb_subscribe(ORB_ID(actuator_armed));
 
-    /*Criar a estrutura que iremos fazer polling... Esta funÃ§Ã£o Ã© bem interessante, e nos permite colocar a thread para dormir, atÃ© */
-    /* que dados do tÃ³pico que estamos inspecionando chegue. A vantagem Ã© que a CPU pode executar outras threads enquanto nÃ£o recebe-se */
+    /*Criar a estrutura que iremos fazer polling... Esta funcao eh bem importante, ela nos permite colocar a thread para dormir, ate */
+    /* que dados do topico que estamos inspecionando chegue. A vantagem eh que a CPU pode executar outras threads enquanto nao recebe-se */
     /*    os dados desejados */
     px4_pollfd_struct_t poll_fds = {};
     poll_fds.events = POLLIN;
 
-    /*Loop principal. SerÃ¡ executado sempre atÃ© que um sinal para matar a thread seja enviado*/
+    /*Loop principal. Sera executado sempre ate que um sinal para matar a thread seja enviado*/
     while(!_task_should_exit)
     {
-        /*TÃ³pico que iremos fazer polling: vehicle_attitude*/
+        /*Topico que iremos fazer polling: vehicle_attitude*/
         poll_fds.fd = _v_attitude_sub;
 
-        // Bloqueie a thread e espere por atÃ© 100 ms por dados do tÃ³pico vehicle_attitude
+        // Bloqueie a thread e espere por ate 100 ms por dados do topico vehicle_attitude
         int pret = px4_poll(&poll_fds, 1, 100);
 
         // tempo expirado
@@ -417,19 +415,19 @@ void Test_Controller::task_main()
             continue;
         }
 
-        /* caso algum erro retorne da funÃ§Ã£o POLL */
+        /* caso algum erro retorne da funcao poll() */
         if (pret < 0) {
             warn("pid att ctrl: poll error %d, %d", pret, errno);
             /* sleep a bit before next try */
             usleep(100000);
             continue;
         }
-        /* Contador para checar em quanto tempo o loop de controle estÃ¡ sendo executado. A vantagem Ã© que, por ser implementado por um driver,
-         * ele nÃ£o Ã© bloqueado por outras aplicaÃ§Ãµes.*/
-        /* Ele comeÃ§a aqui*/
+        /* Contador para checar em quanto tempo o loop de controle estÃ¡ sendo executado. A vantagem eh que, por ser implementado por um driver,
+         * ele nao eh bloqueado por outras aplicacoes.*/
+        /* Ele comeca aqui*/
         perf_begin(_loop_perf);
 
-        /*Se existir novos dados do tÃ³pico que estÃ¡ sendo investigado, entre aqui*/
+        /*Se existir novos dados do topico que esta sendo investigado, entre aqui*/
         if (poll_fds.revents & POLLIN) {
 
             /*obtenha o tempo atual*/
@@ -445,14 +443,14 @@ void Test_Controller::task_main()
                 dt = 0.02f;
             }
 
-            /*Copie os dados obtidos do tÃ³pico inspecionado*/
+            /*Copie os dados obtidos do topico inspecionado*/
             orb_copy(ORB_ID(vehicle_attitude), _v_attitude_sub, &_attitude);
 
             /* Verifique se existem novos dados com as rotinas abaixo*/
             arming_status_poll();
             vehicle_control_mode_poll();
 
-            /*Se a flag de controle de atitude (Ã¢ngulos) estiver habilitada, execute controle de atitude*/
+            /*Se a flag de controle de atitude (angulos) estiver habilitada, execute controle de atitude*/
             if (_v_control_mode.flag_control_attitude_enabled)
             {
                 control_attitude();
@@ -463,7 +461,7 @@ void Test_Controller::task_main()
             {
                 control_rates(dt);
 
-                /*Como nÃ£o estamos controlando altura, ler o valor de throttle publicado pelo mc_pos_control e use-o*/
+                /*Como nao estamos controlando altura, ler o valor de throttle publicado pelo mc_pos_control e use-o*/
                 float thrust_sp = _v_attitude_sp.thrust;
 
                 /*Copie os torques calculados, mas antes cheque se os valores convergiram */
@@ -472,7 +470,7 @@ void Test_Controller::task_main()
                 _actuators.control[2] = (PX4_ISFINITE(_att_control.yaw)) ? _att_control.yaw : 0.0f;     //torque em yaw
                 _actuators.control[3] = (PX4_ISFINITE(thrust_sp)) ? thrust_sp : 0.0f;                   //throttle
 
-                /*Os torques sÃ£o publicados aqui*/
+                /*Os torques sao publicados aqui*/
                 if (_actuators_0_pub != nullptr) {
 
                     orb_publish(ORB_ID(actuator_controls_0), _actuators_0_pub, &_actuators);
@@ -487,8 +485,8 @@ void Test_Controller::task_main()
     } _control_task = -1;
 }
 
-/* Rotina main() (principal) do mÃ³dulo */
-/* Esta rotina Ã© iniciada quando o mÃ³dulo Ã© iniciado, ela Ã© responsÃ¡vel por instanciar um objeto da classe Test_Controller*/
+/* Rotina main() (principal) do modulo */
+/* Esta rotina eh iniciada quando o modulo eh iniciado, ela eh responsÃ¡vel por instanciar um objeto da classe Test_Controller*/
 /* ou destruir um.   */
 
 int test_controller_main(int argc, char* argv[])
